@@ -20,6 +20,7 @@ use super::user::ProjectInfo;
 
 pub fn project_router(state: AppState) -> Router<AppState> {
     let auth = Router::new()
+        .route("/project/new", post(new_project))
         .route("/project/open/{project_id}", get(open_project));
 
     Router::new()
@@ -354,6 +355,21 @@ fn get_comment_replies(id: i32, comments: &mut [Comment]) -> Vec<Comment> {
     }
 
     children
+}
+
+#[derive(Deserialize)
+struct NewProjectBody {
+    name: String,
+    lang: String, // FIXME: not sure what i'm doing languages (am i using presets?, each with its own container image?)
+    private: bool,
+}
+
+async fn new_project(
+    State(AppState { db, client, .. }): State<AppState>,
+    Extension(AuthUser { github_id }): Extension<AuthUser>,
+    Json(NewProjectBody { name, lang, private }): Json(NewProjectBody) 
+) -> Result<(), AppError> {
+    
 }
 
 #[instrument(skip(db))]
